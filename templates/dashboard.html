@@ -364,6 +364,7 @@ let voltageChart;
 let currentChart;
 let powerChart;
 let temperatureChart;
+let lastStatus = "NORMAL"; // Tracks status changes to prevent speech spamming
 
 
 function createCharts() {
@@ -526,6 +527,7 @@ async function updateDashboard() {
             status.classList.add(
                 "normal"
             );
+            lastStatus = "NORMAL"; // Reset status tracker when back to normal
 
         } else {
 
@@ -533,12 +535,18 @@ async function updateDashboard() {
                 "fault"
             );
 
-            // ---> SPEECH-BACK FEATURE INTEGRATION <---
-            // Plays the generated audio alert whenever a FAULT occurs
-            let speechAlert = new Audio('/static/fault_alert.mp3?t=' + new Date().getTime());
-            speechAlert.play().catch(error => {
-                console.log("Browser autoplay blocked until user interaction:", error);
-            });
+            // ---> BROWSER SPEECH SYNTHESIS INTEGRATION <---
+            // Only triggers speech the moment it changes to a FAULT
+            if (lastStatus !== "FAULT") {
+                lastStatus = "FAULT";
+                
+                if ('speechSynthesis' in window) {
+                    let alertText = `Warning! Smart grid fault detected. Voltage is ${Number(data.voltage).toFixed(1)} volts.`;
+                    let utterance = new SpeechSynthesisUtterance(alertText);
+                    utterance.rate = 1.0;
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
 
         }
 
