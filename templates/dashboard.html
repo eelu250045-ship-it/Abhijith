@@ -154,7 +154,8 @@ async function updateDashboard() {
             if (lastStatus !== "FAULT") {
                 lastStatus = "FAULT";
                 if ('speechSynthesis' in window) {
-                    let alertText = `Warning! Smart grid fault detected. Voltage is ${Number(data.voltage).toFixed(1)} volts.`;
+                    // Updated speech prompt to include voltage, current, and temperature
+                    let alertText = `Warning! Smart grid fault detected. Voltage is ${Number(data.voltage).toFixed(1)} volts, current is ${Number(data.current).toFixed(2)} amperes, and temperature is ${Number(data.temperature).toFixed(1)} degrees celsius.`;
                     let utterance = new SpeechSynthesisUtterance(alertText);
                     utterance.rate = 1.0;
                     window.speechSynthesis.speak(utterance);
